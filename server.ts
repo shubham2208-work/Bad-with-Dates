@@ -45,15 +45,25 @@ function writeJson<T>(filename: string, data: T): void {
   }
 }
 
-// Initialize GoogleGenAI server-side with telemetry header
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
-    },
-  },
-});
+// Gemini is optional at boot so the site still loads before a key is set.
+let aiClient: GoogleGenAI | null = null;
+function getAI() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') {
+    throw new Error('GEMINI_API_KEY is not configured');
+  }
+  if (!aiClient) {
+    aiClient = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        },
+      },
+    });
+  }
+  return aiClient;
+}
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -415,7 +425,7 @@ Special Details / Personality: ${customDetails || 'None specified'}
 
 Generate the 4 personalized wishes, 3 curated gift ideas, and 1 creative photo styling recommendation for this celebration.`;
 
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: 'gemini-3.8-flash',
       contents: userPrompt,
       config: {
@@ -485,7 +495,7 @@ Return as JSON:
   "filterSuggestion": "warm_glow" | "golden_hour" | "fiesta" | "classic_vintage" | "romantic_blush"
 }`;
 
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: 'gemini-3.8-flash',
       contents: prompt,
       config: {
@@ -594,4 +604,9 @@ async function startServer() {
   });
 }
 
-startServer();
+export default app;
+
+// Vercel runs the exported app. Local and other hosts start the listener.
+if (!process.env.VERCEL) {
+  startServer();
+}

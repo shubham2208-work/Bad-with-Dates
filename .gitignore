@@ -1,4 +1,6 @@
 node_modules/
+public/index.html
+public/assets/index-*
 build/
 dist/
 coverage/
@@ -8,3 +10,4 @@ coverage/
 !.env.example
 server_data/*.json
 !server_data/.gitkeep
+.vercel
