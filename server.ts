@@ -584,6 +584,29 @@ setInterval(async () => {
   }
 }, 20000); // Check every 20s
 
+// Vercel ignores express.static, so files are sent directly from the built dist folder.
+function attachBuiltFrontend() {
+  const distDir = path.resolve(process.cwd(), 'dist');
+
+  app.use((req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+    if (req.path.startsWith('/api')) return next();
+
+    const relativePath = req.path === '/' ? 'index.html' : decodeURIComponent(req.path).replace(/^\/+/, '');
+    const filePath = path.resolve(distDir, relativePath);
+    const insideDist = filePath === distDir || filePath.startsWith(distDir + path.sep);
+    if (insideDist && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      return res.sendFile(filePath);
+    }
+
+    const indexPath = path.join(distDir, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      return res.sendFile(indexPath);
+    }
+    next();
+  });
+}
+
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');
@@ -593,10 +616,7 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    app.use(express.static(path.resolve(__dirname, 'dist')));
-    app.get('*', (req, res) => {
-      res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
-    });
+    attachBuiltFrontend();
   }
 
   app.listen(PORT, '0.0.0.0', () => {
@@ -607,6 +627,8 @@ async function startServer() {
 export default app;
 
 // Vercel runs the exported app. Local and other hosts start the listener.
-if (!process.env.VERCEL) {
+if (process.env.VERCEL) {
+  attachBuiltFrontend();
+} else {
   startServer();
 }

@@ -1,4 +1,9 @@
 {
-  "buildCommand": "npm run build:vercel",
-  "framework": "express"
+  "buildCommand": "npm run build",
+  "framework": "express",
+  "functions": {
+    "server.ts": {
+      "includeFiles": "dist/**"
+    }
+  }
 }
