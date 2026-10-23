@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .bg-dot-pattern {
+    background-color: #f59e0b;
+    background-image: radial-gradient(rgba(0, 0, 0, 0.22) 1.5px, transparent 1.5px);
+    background-size: 18px 18px;
+  }
+
+  .bg-dot-pattern-cream {
+    background-color: #fdfbf7;
+    background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+    background-size: 18px 18px;
+  }
+
+  .neo-box {
+    border: 2px solid #000000;
+    box-shadow: 4px 4px 0px #000000;
+  }
+
+  .neo-box-sm {
+    border: 2px solid #000000;
+    box-shadow: 2px 2px 0px #000000;
+  }
+
+  .neo-box-lg {
+    border: 2.5px solid #000000;
+    box-shadow: 6px 6px 0px #000000;
+  }
+
+  .neo-btn {
+    border: 2px solid #000000;
+    box-shadow: 3px 3px 0px #000000;
+    transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .neo-btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0px #000000;
+  }
+
+  .neo-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px #000000;
+  }
+
+  .highlighter-yellow {
+    background: #facc15;
+    border-radius: 9999px;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
